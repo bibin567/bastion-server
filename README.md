@@ -1,97 +1,72 @@
-```markdown
-# Terraform AWS VPC Setup
+# Terraform AWS EC2 Example
+This Terraform code creates an AWS VPC with a public subnet and a private subnet, launches a bastion EC2 instance in the public subnet, and launches a private EC2 instance in the private subnet.
 
-This repository contains Terraform code to set up a Virtual Private Cloud (VPC) in AWS. The VPC includes public and private subnets, security groups, an internet gateway, and EC2 instances.
 
-## Table of Contents
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-  - [Main Terraform Files](#main-terraform-files)
-  - [Variables](#variables)
-  - [Provider](#provider)
-- [Usage](#usage)
-- [Cleaning Up](#cleaning-up)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+# VPC and EC2 Deployment
+This Terraform configuration creates a VPC with a CIDR block of `10.0.0.0/16` and two private subnets with CIDR blocks of `10.0.1.0/24` and `10.0.2.0/24`, as well as a public subnet with a CIDR block of `10.0.0.0/24`. It also creates a public EC2 instance in the public subnet with a key pair named `"xxpublic"` and a private EC2 instance in one of the private subnets with a key pair named `"xxprivate"`.
 
-## Prerequisites
-
-Before you can use this Terraform code, make sure you have the following:
-
-- AWS account credentials with appropriate permissions
-- Terraform installed on your local machine
-
-## Getting Started
-
-Follow the steps below to set up the AWS VPC using Terraform:
-
-1. Clone this repository to your local machine.
-
-2. Modify the `variables.tf` file to customize the VPC settings according to your requirements. You can change the CIDR blocks, subnet names, security group names, and other variables as needed.
-
-3. Run the following command to initialize the Terraform configuration:
-
+# Usage
+1. Install Terraform on your local machine.
+2. Clone this repository.
+3. Create a file named terraform.tfvars and insert your AWS credentials.
+```bash
+Run
+  terraform init
+  terraform plan
+  terraform apply
 ```
-terraform init
+Once the infrastructure is created, you can use terraform show to see the outputs.
+To delete the infrastructure,
+```bash
+Run
+  terraform destroy
 ```
 
-4. Run the following command to see the execution plan and ensure everything is configured correctly:
+#Inputs
+The following variables can be passed in to configure the infrastructure:
 
+* `aws_region`: The AWS region to deploy the infrastructure in.
+* `vpc_cidr_block`: The CIDR block for the VPC.
+* `private_subnet_1_cidr_block`: The CIDR block for the first private subnet.
+* `private_subnet_2_cidr_block`: The CIDR block for the second private subnet.
+* `public_subnet_cidr_block`: The CIDR block for the public subnet.
+* `public_ec2_key_name`: The key pair name for the public EC2 instance.
+* `private_ec2_key_name`: The key pair name for the private EC2 instance.
+
+# Outputs
+The following outputs are available:
+
+* `vpc_id`: The ID of the VPC.
+* `private_subnet_1_id`: The ID of the first private subnet.
+* `private_subnet_2_id`: The ID of the second private subnet.
+* `public_subnet_id`: The ID of the public subnet.
+* `public_ec2_id`: The ID of the public EC2 instance.
+* `private_ec2_id`: The ID of the private EC2 instance.
+
+
+# Using Bastion Host to SSH into Private Server
+1. Obtain the public IP address of the bastion instance by running the following command:
+```bash
+terraform output bastion_ip
 ```
-terraform plan
+2. ssh to public server using the below command
+```bash
+ssh -i id_ed25519 ec2-user@<publicip>
+```
+3. Copy our public ip and create a file "id_ed25519" inside /home/ec2-user/.ssh/ and paste into it
+```bash
+cd /home/ec2-user/.ssh/
+vim id_ed25519
+ (copy and paste our publicip)
+ ```
+4. Run this command, if necessary, to ensure your key is not publicly viewable.
+```bash
+chmod 400 id_ed25519
+```
+5. Connect to your instance using its Private IP:
+```bash
+ssh -i id_ed25519 ec2-user@<privateip>
 ```
 
-5. Run the following command to create the AWS resources based on the Terraform code. Confirm the changes by typing "yes" when prompted:
 
-```
-terraform apply
-```
 
-6. Wait for Terraform to provision the resources. Once completed, you will see the output with the public IP address of the bastion instance.
-
-7. Access the bastion instance by SSH using the public IP address provided in the output.
-
-## Configuration
-
-The Terraform configuration consists of several files that define the AWS VPC infrastructure.
-
-### Main Terraform Files
-
-- **main.tf**: This file defines the AWS resources such as VPC, subnets, security groups, internet gateway, route table, route table association, key pair, and EC2 instances.
-
-### Variables
-
-- **variables.tf**: This file defines the input variables used in the Terraform configuration. You can modify these variables to customize the VPC setup according to your needs. It includes variables for CIDR blocks, subnet names, security group names, trusted IP address, bastion security group CIDR block, AMI name, and instance names.
-
-### Provider
-
-- **provider.tf**: This file specifies the AWS provider and the AWS region to use for the VPC setup.
-
-## Usage
-
-Follow the steps in the [Getting Started](#getting-started) section to set up the AWS VPC using Terraform. Customize the variables in the `variables.tf` file to match your requirements.
-
-## Cleaning Up
-
-To clean up and destroy the AWS resources created by Terraform, run the following command:
-
-```
-terraform destroy
-```
-
-Confirm the destruction by typing "yes" when prompted.
-
-## Contributing
-
-If you find any issues or have suggestions for improvements, please open an issue or submit a pull request. Contributions are welcome!
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Acknowledgements
-
-This project was inspired by the need to automate the setup of AWS VPC infrastructure using Terraform. We would like to acknowledge the contributions of the open-source community and the developers behind Terraform and AWS.
-```
