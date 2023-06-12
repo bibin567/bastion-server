@@ -1,4 +1,4 @@
-# Terraform AWS EC2 Example
+# Bastion-secure-ssh
 This Terraform code creates an AWS VPC with a public subnet and a private subnet, launches a bastion EC2 instance in the public subnet, and launches a private EC2 instance in the private subnet.
 
 
