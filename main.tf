@@ -1,5 +1,3 @@
-
-
 resource "aws_vpc" "example" {
   cidr_block = var.vpc_cidr_block
   tags = {
@@ -37,7 +35,6 @@ resource "aws_subnet" "public" {
   }
 }
 
-
 resource "aws_security_group" "public_ec2" {
   name        = "public_ec2"
   description = "Security group for public EC2 instance"
@@ -50,7 +47,7 @@ resource "aws_security_group" "public_ec2" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.trusted_ip_address]
   }
 
   egress {
@@ -62,10 +59,9 @@ resource "aws_security_group" "public_ec2" {
 }
 
 resource "aws_eip" "bastion_ip" {
-  domain   = "vpc"
+  domain = "vpc"
   instance = aws_instance.bastion.id
 }
-
 
 resource "aws_security_group" "private_ec2" {
   name        = "private_ec2"
@@ -80,7 +76,7 @@ resource "aws_security_group" "private_ec2" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.bastion_sg_cidr]
   }
 }
 
@@ -107,9 +103,8 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_key_pair" "key" {
   key_name   = "awskey"
-  public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC3NsRVLjZUxO+t6m8F1ETWqrC4iBDQTOcf7JdLnsemT bibinjoy2255@gmail.com"
+  public_key = "ssh-ed25519 xxx bibinjoy2255@gmail.com"
 }
-
 
 resource "aws_instance" "bastion" {
   ami                         = var.ami_name
@@ -122,7 +117,6 @@ resource "aws_instance" "bastion" {
     Name = var.instance1_name
   }
 }
-
 
 resource "aws_instance" "private" {
   ami                    = var.ami_name
